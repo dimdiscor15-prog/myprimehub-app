@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MyPrimeHub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --bg3: #141428;
+    --card: #111122;
+    --card2: #16162e;
+    --border: #1e1e3f;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --gold: #ffd700;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+    --glow2: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header-balance {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .header-balance-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-balance-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  /* CONTENT */
+  .content {
+    position: relative;
+    z-index: 1;
+    padding: 16px;
+  }
+
+  /* HERO CARD */
+  .hero-card {
+    background: linear-gradient(135deg, #0f0f2a 0%, #1a0a3a 50%, #0a1a3a 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-greeting {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .hero-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .balance-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .balance-main {
+    flex: 1;
+  }
+
+  .balance-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .balance-amount {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent3);
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(245,158,11,0.4);
+  }
+
+  .balance-currency {
+    font-size: 14px;
+    color: var(--text2);
+    margin-left: 6px;
+  }
+
+  .balance-stats {
+    display: flex;
+    gap: 16px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* MINER CARD */
+  .miner-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .miner-card.active {
+    border-color: rgba(16,185,129,0.4);
+    background: linear-gradient(135deg, #0a1f15 0%, #111122 100%);
+  }
+
+  .miner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .miner-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .miner-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .status-dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .status-dot.red { background: var(--red); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+  }
+
+  .miner-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .miner-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .miner-stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 2px;
+  }
+
+  .miner-stat-label {
+    font-size: 9px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .miner-progress {
+    margin-bottom: 14px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--accent));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* GRID MENU */
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    margin-top: 4px;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .menu-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .menu-item:active { transform: scale(0.96); }
+
+  .menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .menu-item:active::before { opacity: 1; }
+
+  .menu-item.blue::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .menu-item.purple::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .menu-item.gold::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .menu-item.green::before { background: linear-gradient(90deg, var(--green), transparent); }
+
+  .menu-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .menu-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  .menu-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.3;
+  }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+  }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-green {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    box-shadow: 0 4px 20px rgba(16,185,129,0.3);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: white;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+  }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* GAMES PAGE */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .game-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .game-card:active { transform: scale(0.95); }
+
+  .game-emoji { font-size: 32px; margin-bottom: 8px; }
+
+  .game-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .game-mult {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .stat-card-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .stat-card-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.97);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 6px 0;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-item:active { transform: scale(0.9); }
+
+  .nav-icon { font-size: 20px; transition: all 0.2s; }
+
+  .nav-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+  .nav-item.active .nav-label { color: var(--accent); }
+
+  /* INPUT */
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .input-field:focus { border-color: var(--accent); }
+
+  /* PARTNERS */
+  .ref-link-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    word-break: break-all;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  .reward-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reward-row:last-child { border-bottom: none; }
+
+  .reward-level {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text2);
+  }
+
+  .reward-amount {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  /* HISTORY */
+  .tx-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .tx-left { display: flex; flex-direction: column; gap: 2px; }
+  .tx-desc { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tx-date { font-size: 11px; color: var(--text3); }
+  .tx-amount { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; }
+  .tx-amount.plus { color: var(--green); }
+  .tx-amount.minus { color: var(--red); }
+
+  /* DEPOSIT */
+  .deposit-step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .step-num {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  .wallet-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 11px;
+    color: var(--accent);
+    word-break: break-all;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .wallet-box:active { background: rgba(0,212,255,0.12); }
+
+  .warn-box {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    color: #fca5a5;
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(16,185,129,0.95);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* PROFILE */
+  .profile-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 12px;
+    box-shadow: 0 0 30px rgba(124,58,237,0.4);
+  }
+
+  .profile-username {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .profile-id {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .info-label {
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  .info-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* WITHDRAW */
+  .withdraw-info {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #fcd34d;
+    line-height: 1.6;
+  }
+
+  .page-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Анімація завантаження */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .page.active { animation: fadeIn 0.3s ease; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">⛏ PRIMEHUB</div>
+  <div class="header-balance">
+    <div class="header-balance-label">Баланс</div>
+    <div class="header-balance-value" id="headerBalance">0.00 TON</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MAIN PAGE -->
+<div class="page active" id="page-home">
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero-card">
+      <div class="hero-greeting">Вітаємо 👋</div>
+      <div class="hero-name" id="heroName">Завантаження...</div>
+      <div class="balance-section">
+        <div class="balance-main">
+          <div class="balance-label">Загальний баланс</div>
+          <div>
+            <span class="balance-amount" id="mainBalance">0.00</span>
+            <span class="balance-currency">TON</span>
+          </div>
+        </div>
+        <div class="balance-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="statRefs">0</div>
+            <div class="stat-label">Рефи</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statMiner">0</div>
+            <div class="stat-label">Майнер</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINER CARD -->
+    <div class="miner-card active" id="minerCard">
+      <div class="miner-header">
+        <div class="miner-title">⛏️ PRIME MINER</div>
+        <div class="miner-status">
+          <div class="status-dot green" id="minerDot"></div>
+          <span id="minerStatusText" style="color: var(--green); font-size:12px;">Активний</span>
+        </div>
+      </div>
+      <div class="miner-stats">
+        <div class="miner-stat">
+          <div class="miner-stat-value" id="minerLevel">LVL 0</div>
+          <div class="miner-stat-label">Рівень</div>
+        </div>
+        <div class="miner-stat">
+          <div class="miner-stat-value" id="minerDaily">0.00</div>
+          <div class="miner-stat-label">TON/день</div>
+        </div>
+        <div class="miner-stat">
+          <div class="miner-stat-value" id="minerPending">0.00</div>
+          <div class="miner-stat-label">Накоп.</div>
+        </div>
+      </div>
+      <div class="miner-progress">
+        <div class="progress-header">
+          <span>Накопичення (72год макс)</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+      <button class="btn btn-green" id="collectBtn" onclick="collectMiner()">💰 Зібрати накопичене</button>
+    </div>
+
+    <!-- MENU -->
+    <div class="section-title">МЕНЮ</div>
+    <div class="menu-grid">
+      <div class="menu-item blue" onclick="showPage('games')">
+        <div class="menu-icon">🎮</div>
+        <div class="menu-label">Ігри</div>
+        <div class="menu-desc">Слоти, кубик, монетка</div>
+      </div>
+      <div class="menu-item purple" onclick="showPage('partners')">
+        <div class="menu-icon">🤝</div>
+        <div class="menu-label">Партнери</div>
+        <div class="menu-desc">Реферальна програма</div>
+      </div>
+      <div class="menu-item gold" onclick="showPage('deposit')">
+        <div class="menu-icon">💰</div>
+        <div class="menu-label">Поповнити</div>
+        <div class="menu-desc">Поповнення TON</div>
+      </div>
+      <div class="menu-item green" onclick="showPage('withdraw')">
+        <div class="menu-icon">💸</div>
+        <div class="menu-label">Вивід</div>
+        <div class="menu-desc">Вивести TON</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GAMES PAGE -->
+<div class="page" id="page-games">
+  <div class="content">
+    <div class="page-title">🎮 ІГРОВИЙ ЗАЛ</div>
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:13px; color:var(--text2);">💰 Баланс</span>
+      <span style="font-family:'Orbitron',sans-serif; font-size:13px; color:var(--accent3);" id="gamesBalance">0.00 TON</span>
+    </div>
+    <div class="games-grid">
+      <div class="game-card" onclick="openGame('slots')">
+        <div class="game-emoji">🎰</div>
+        <div class="game-name">СЛОТИ</div>
+        <div class="game-mult">до x8</div>
+      </div>
+      <div class="game-card" onclick="openGame('coin')">
+        <div class="game-emoji">🪙</div>
+        <div class="game-name">МОНЕТКА</div>
+        <div class="game-mult">x1.8</div>
+      </div>
+      <div class="game-card" onclick="openGame('dice')">
+        <div class="game-emoji">🎲</div>
+        <div class="game-name">КУБИК</div>
+        <div class="game-mult">x4.5</div>
+      </div>
+      <div class="game-card" onclick="openGame('hilo')">
+        <div class="game-emoji">📈</div>
+        <div class="game-name">БІЛЬШЕ/МЕНШЕ</div>
+        <div class="game-mult">x1.8</div>
+      </div>
+    </div>
+    <p style="text-align:center; font-size:12px; color:var(--text3); margin-top:8px;">⚠️ Для гри перейди в бот</p>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="openBot()">🤖 Відкрити бот</button>
+  </div>
+</div>
+
+<!-- PARTNERS PAGE -->
+<div class="page" id="page-partners">
+  <div class="content">
+    <div class="page-title">🤝 ПАРТНЕРИ</div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px;">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">Нагороди за рефералів</div>
+      <div class="reward-row">
+        <div class="reward-level">1️⃣ <span>Рівень 1</span></div>
+        <div class="reward-amount">+0.1 TON</div>
+      </div>
+      <div class="reward-row">
+        <div class="reward-level">2️⃣ <span>Рівень 2</span></div>
+        <div class="reward-amount">+0.05 TON</div>
+      </div>
+      <div class="reward-row">
+        <div class="reward-level">3️⃣ <span>Рівень 3</span></div>
+        <div class="reward-amount">+0.02 TON</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2); border-radius:14px; padding:14px; margin-bottom:14px;">
+      <div style="font-size:11px; color:var(--green); font-weight:700; margin-bottom:6px;">⛏ БОНУС ДО МАЙНІНГУ</div>
+      <div style="font-size:13px; color:var(--text2); line-height:1.6;">За кожного реферала 1 рівня ти отримуєш додатковий дохід від майнера кожні 10 секунд!</div>
+    </div>
+
+    <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Твоє посилання</div>
+    <div class="ref-link-box" id="refLink" onclick="copyRefLink()">
+      https://t.me/MyPrimeHub_bot?start=...
+    </div>
+    <button class="btn btn-primary" onclick="shareRefLink()">📤 Поділитись посиланням</button>
+
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <div style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center;">
+        <div style="font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:var(--accent);" id="refs1Count">0</div>
+        <div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-top:4px;">Рефів 1рів</div>
+      </div>
+      <div style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center;">
+        <div style="font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:var(--accent2);" id="refEarnings">0.00</div>
+        <div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-top:4px;">TON зароблено</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT PAGE -->
+<div class="page" id="page-deposit">
+  <div class="content">
+    <div class="page-title">💰 ПОПОВНЕННЯ</div>
+
+    <div style="background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.2); border-radius:14px; padding:14px; margin-bottom:14px; display:flex; gap:10px; align-items:center;">
+      <span style="font-size:20px;">⚡️</span>
+      <div>
+        <div style="font-size:13px; font-weight:700; color:var(--accent);">Автоматичне поповнення</div>
+        <div style="font-size:12px; color:var(--text2); margin-top:2px;">Кошти зараховуються за 15-30 секунд</div>
+      </div>
+    </div>
+
+    <div class="deposit-step">
+      <div class="step-num">1</div>
+      <div style="font-size:13px; color:var(--text2); margin-bottom:8px;">Надішли TON на гаманець:</div>
+      <div class="wallet-box" id="walletBox" onclick="copyWallet()">
+        UQARrkdFtKlvyUWL-zGJzivemS9g14F_1I92dtGyU1A4FIfr
+        <div style="margin-top:6px; font-size:10px; color:var(--text3);">👆 Натисни щоб скопіювати</div>
+      </div>
+    </div>
+
+    <div class="deposit-step">
+      <div class="step-num">2</div>
+      <div style="font-size:13px; color:var(--text2); margin-bottom:8px;">ОБОВ'ЯЗКОВО вкажи коментар:</div>
+      <div class="wallet-box" id="commentBox" onclick="copyComment()">
+        <span id="depositComment">PAY-...</span>
+        <div style="margin-top:6px; font-size:10px; color:var(--text3);">👆 Натисни щоб скопіювати</div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      ⚠️ <span>БЕЗ КОМЕНТАРЯ кошти НЕ зарахуються!</span>
+    </div>
+
+    <div style="margin-top:14px; font-size:12px; color:var(--text3);">💵 Мінімум: 0.5 TON</div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="checkDeposit()">🔍 Я відправив — перевірити</button>
+  </div>
+</div>
+
+<!-- WITHDRAW PAGE -->
+<div class="page" id="page-withdraw">
+  <div class="content">
+    <div class="page-title">💸 ВИВІД TON</div>
+    <div class="withdraw-info">
+      💰 Баланс: <span id="withdrawBalance" style="font-family:'Orbitron',sans-serif; font-weight:700;">0.00 TON</span><br>
+      📉 Мінімум виводу: <strong>2.0 TON</strong>
+    </div>
+    <input class="input-field" type="number" id="withdrawAmount" placeholder="Сума виводу (TON)" step="0.1" min="2">
+    <input class="input-field" type="text" id="withdrawWallet" placeholder="Твій TON гаманець">
+    <button class="btn btn-gold" onclick="submitWithdraw()">💸 Подати заявку</button>
+  </div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div class="page" id="page-history">
+  <div class="content">
+    <div class="page-title">📜 ІСТОРІЯ</div>
+    <div id="historyList">
+      <div style="text-align:center; color:var(--text3); padding:40px 0; font-size:13px;">Немає транзакцій</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div class="page" id="page-profile">
+  <div class="content">
+    <div class="profile-avatar">👤</div>
+    <div class="profile-username" id="profileName">—</div>
+    <div class="profile-id" id="profileId">ID: —</div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px;">
+      <div class="info-row">
+        <span class="info-label">💰 Баланс</span>
+        <span class="info-value" id="pBalance">0.00 TON</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">💵 Зароблено</span>
+        <span class="info-value" id="pEarned">0.00 TON</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">⛏ Майнер</span>
+        <span class="info-value" id="pMiner">Не куплений</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">🎮 Ігор зіграно</span>
+        <span class="info-value" id="pGames">0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">🏆 Перемог</span>
+        <span class="info-value" id="pWins">0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">👥 Рефералів</span>
+        <span class="info-value" id="pRefs">0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">📅 Реєстрація</span>
+        <span class="info-value" id="pDate">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Головна</div>
+  </div>
+  <div class="nav-item" onclick="showPage('games')" id="nav-games">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">Ігри</div>
+  </div>
+  <div class="nav-item" onclick="showPage('partners')" id="nav-partners">
+    <div class="nav-icon">🤝</div>
+    <div class="nav-label">Партнери</div>
+  </div>
+  <div class="nav-item" onclick="showPage('history')" id="nav-history">
+    <div class="nav-icon">📜</div>
+    <div class="nav-label">Історія</div>
+  </div>
+  <div class="nav-item" onclick="showPage('profile')" id="nav-profile">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Профіль</div>
+  </div>
+</div>
+
+<script>
+// ===== TELEGRAM WEBAPP INIT =====
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#0a0a0f');
+  tg.setBackgroundColor('#0a0a0f');
+}
+
+const BOT_USERNAME = 'MyPrimeHub_bot';
+const TON_WALLET = 'UQARrkdFtKlvyUWL-zGJzivemS9g14F_1I92dtGyU1A4FIfr';
+
+// ===== MOCK DATA (замінити на реальне API) =====
+const userData = {
+  id: tg?.initDataUnsafe?.user?.id || 123456789,
+  username: tg?.initDataUnsafe?.user?.first_name || 'Користувач',
+  balance: 1.234567,
+  total_earned: 5.678,
+  miner_level: 3,
+  miner_daily: 0.01436,
+  miner_pending: 0.00234,
+  refs_level1: 7,
+  ref_earnings: 0.7,
+  total_games: 42,
+  total_wins: 18,
+  join_date: '2024-01-15',
+  history: [
+    { desc: '⛏ Майнінг', amount: 0.00234, date: '28.02 14:30' },
+    { desc: '🎰 ДЖЕКПОТ! x8', amount: 4.0, date: '28.02 13:15' },
+    { desc: '💰 Поповнення', amount: 5.0, date: '27.02 20:00' },
+    { desc: '🪙 Монетка', amount: -0.5, date: '27.02 19:45' },
+    { desc: '👥 Реф 1ур', amount: 0.1, date: '27.02 18:00' },
+  ]
+};
+
+// ===== INIT =====
+function init() {
+  const u = userData;
+  const bal = u.balance.toFixed(4);
+
+  // Header
+  document.getElementById('headerBalance').textContent = bal + ' TON';
+
+  // Hero
+  document.getElementById('heroName').textContent = u.username;
+  document.getElementById('mainBalance').textContent = bal;
+  document.getElementById('statRefs').textContent = u.refs_level1;
+  document.getElementById('statMiner').textContent = u.miner_level > 0 ? 'LVL ' + u.miner_level : '—';
+
+  // Miner
+  if (u.miner_level > 0) {
+    document.getElementById('minerLevel').textContent = 'LVL ' + u.miner_level;
+    document.getElementById('minerDaily').textContent = u.miner_daily.toFixed(5);
+    document.getElementById('minerPending').textContent = u.miner_pending.toFixed(6);
+    const pct = Math.min((u.miner_pending / (u.miner_daily * 3)) * 100, 100).toFixed(0);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+  } else {
+    document.getElementById('minerStatusText').textContent = 'Не куплений';
+    document.getElementById('minerStatusText').style.color = 'var(--red)';
+    document.getElementById('minerDot').className = 'status-dot red';
+    document.getElementById('minerLevel').textContent = 'LVL 0';
+    document.getElementById('minerDaily').textContent = '0';
+    document.getElementById('minerPending').textContent = '0';
+  }
+
+  // Deposit comment
+  document.getElementById('depositComment').textContent = 'PAY-' + u.id;
+
+  // Ref link
+  document.getElementById('refLink').textContent = 'https://t.me/' + BOT_USERNAME + '?start=' + u.id;
+
+  // Partners
+  document.getElementById('refs1Count').textContent = u.refs_level1;
+  document.getElementById('refEarnings').textContent = u.ref_earnings.toFixed(2);
+
+  // Games balance
+  document.getElementById('gamesBalance').textContent = bal + ' TON';
+
+  // Withdraw balance
+  document.getElementById('withdrawBalance').textContent = bal + ' TON';
+
+  // Profile
+  document.getElementById('profileName').textContent = u.username;
+  document.getElementById('profileId').textContent = 'ID: ' + u.id;
+  document.getElementById('pBalance').textContent = bal + ' TON';
+  document.getElementById('pEarned').textContent = u.total_earned.toFixed(4) + ' TON';
+  document.getElementById('pMiner').textContent = u.miner_level > 0 ? 'Рівень ' + u.miner_level : 'Не куплений';
+  document.getElementById('pGames').textContent = u.total_games;
+  document.getElementById('pWins').textContent = u.total_wins;
+  document.getElementById('pRefs').textContent = u.refs_level1;
+  document.getElementById('pDate').textContent = u.join_date;
+
+  // History
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!userData.history.length) return;
+  list.innerHTML = userData.history.map(tx => `
+    <div class="tx-item">
+      <div class="tx-left">
+        <div class="tx-desc">${tx.desc}</div>
+        <div class="tx-date">${tx.date}</div>
+      </div>
+      <div class="tx-amount ${tx.amount >= 0 ? 'plus' : 'minus'}">
+        ${tx.amount >= 0 ? '+' : ''}${tx.amount.toFixed(4)} TON
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.getElementById('nav-' + name)?.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===== TOAST =====
+function showToast(msg, color = 'var(--green)') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== ACTIONS =====
+function collectMiner() {
+  if (userData.miner_pending <= 0) {
+    showToast('Нічого не накопичено', 'rgba(239,68,68,0.95)');
+    return;
+  }
+  showToast('✅ Зібрано ' + userData.miner_pending.toFixed(6) + ' TON!');
+  userData.balance += userData.miner_pending;
+  userData.miner_pending = 0;
+  init();
+  // Тут буде реальний API call до бота
+  if (tg) tg.showPopup({ message: 'Для збору майнера перейди в бот', buttons: [{ type: 'default', text: 'Відкрити бот' }] });
+}
+
+function copyWallet() {
+  navigator.clipboard?.writeText(TON_WALLET).then(() => showToast('📋 Гаманець скопійовано!'));
+}
+
+function copyComment() {
+  const comment = 'PAY-' + userData.id;
+  navigator.clipboard?.writeText(comment).then(() => showToast('📋 Коментар скопійовано!'));
+}
+
+function copyRefLink() {
+  const link = 'https://t.me/' + BOT_USERNAME + '?start=' + userData.id;
+  navigator.clipboard?.writeText(link).then(() => showToast('📋 Посилання скопійовано!'));
+}
+
+function shareRefLink() {
+  const link = 'https://t.me/' + BOT_USERNAME + '?start=' + userData.id;
+  const text = '🔥 Заробляй TON разом зі мною!';
+  if (tg) {
+    tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text));
+  } else {
+    copyRefLink();
+  }
+}
+
+function checkDeposit() {
+  showToast('🔍 Перевіряємо...');
+  if (tg) tg.showPopup({ message: 'Для перевірки транзакції перейди в бот', buttons: [{ type: 'default', text: 'Відкрити бот' }] });
+}
+
+function submitWithdraw() {
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const wallet = document.getElementById('withdrawWallet').value.trim();
+  if (!amount || amount < 2) {
+    showToast('❌ Мінімум 2.0 TON', 'rgba(239,68,68,0.95)');
+    return;
+  }
+  if (!wallet || wallet.length < 10) {
+    showToast('❌ Введи гаманець', 'rgba(239,68,68,0.95)');
+    return;
+  }
+  if (amount > userData.balance) {
+    showToast('❌ Недостатньо коштів', 'rgba(239,68,68,0.95)');
+    return;
+  }
+  showToast('✅ Заявку подано!');
+  if (tg) tg.showPopup({ message: 'Заявку на вивід подано! Очікуй підтвердження від адміна.', buttons: [{ type: 'ok' }] });
+}
+
+function openGame(name) {
+  const names = { slots: 'Слоти', coin: 'Монетка', dice: 'Кубик', hilo: 'Більше/Менше' };
+  if (tg) {
+    tg.showPopup({
+      message: 'Гра "' + names[name] + '" доступна в боті',
+      buttons: [{ type: 'default', text: '🤖 Відкрити бот' }, { type: 'cancel', text: 'Скасувати' }]
+    }, (btn) => { if (btn !== 'cancel') openBot(); });
+  }
+}
+
+function openBot() {
+  if (tg) tg.openTelegramLink('https://t.me/' + BOT_USERNAME);
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
