@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Prime Hub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #060a14;
+    --bg2: #0d1425;
+    --bg3: #111c35;
+    --blue: #0ea5e9;
+    --blue2: #38bdf8;
+    --purple: #7c3aed;
+    --purple2: #a855f7;
+    --gold: #f59e0b;
+    --gold2: #fbbf24;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: rgba(14,165,233,0.2);
+    --glow: 0 0 20px rgba(14,165,233,0.3);
+    --glow-purple: 0 0 20px rgba(124,58,237,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(14,165,233,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* STARS */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.3); }
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(6,10,20,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--blue), var(--purple2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+
+  .balance-badge {
+    background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(124,58,237,0.15));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    position: relative;
+    z-index: 1;
+    padding: 0 0 80px;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* HERO SECTION */
+  .hero {
+    padding: 24px 16px 20px;
+    text-align: center;
+  }
+
+  .hero-name {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .hero-balance {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .hero-ton {
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .stat-pill {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .stat-pill span { color: var(--text); font-weight: 600; }
+
+  /* GRID MENU */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 16px;
+  }
+
+  .menu-card {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    opacity: 0.06;
+    background: var(--accent-color, var(--blue));
+    transform: translate(30%, -30%);
+    transition: all 0.3s;
+  }
+
+  .menu-card:active { transform: scale(0.96); }
+  .menu-card:active::before { opacity: 0.12; transform: translate(20%, -20%) scale(1.5); }
+
+  .menu-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .menu-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  .menu-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .menu-card.blue { --accent-color: var(--blue); border-color: rgba(14,165,233,0.25); }
+  .menu-card.purple { --accent-color: var(--purple2); border-color: rgba(168,85,247,0.25); }
+  .menu-card.gold { --accent-color: var(--gold); border-color: rgba(245,158,11,0.25); }
+  .menu-card.green { --accent-color: var(--green); border-color: rgba(16,185,129,0.25); }
+  .menu-card.red { --accent-color: var(--red); border-color: rgba(239,68,68,0.25); }
+
+  /* MINER SCREEN */
+  .miner-header {
+    padding: 20px 16px 10px;
+    text-align: center;
+  }
+
+  .miner-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .miner-status.inactive {
+    background: rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.3);
+    color: var(--red);
+  }
+
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .pulse-dot.red { background: var(--red); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .miner-pending-card {
+    margin: 0 16px 16px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .pending-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .pending-amount {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .collect-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border: none;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .collect-btn:active { transform: scale(0.97); }
+
+  /* INCOME TABLE */
+  .income-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+
+  .income-cell {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .income-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .income-value { font-size: 14px; font-weight: 700; color: var(--blue2); }
+
+  /* LEVELS */
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    padding: 0 16px;
+    margin: 16px 0 10px;
+    text-transform: uppercase;
+  }
+
+  .level-card {
+    margin: 0 16px 8px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .level-card.active-level {
+    border-color: rgba(16,185,129,0.5);
+    background: linear-gradient(135deg, rgba(16,185,129,0.05), var(--bg2));
+  }
+
+  .level-card.next-level {
+    border-color: rgba(14,165,233,0.4);
+    background: linear-gradient(135deg, rgba(14,165,233,0.05), var(--bg2));
+    animation: glowBorder 2s ease-in-out infinite;
+  }
+
+  @keyframes glowBorder {
+    0%, 100% { border-color: rgba(14,165,233,0.4); }
+    50% { border-color: rgba(14,165,233,0.8); }
+  }
+
+  .level-card:active { transform: scale(0.98); }
+
+  .level-left { display: flex; align-items: center; gap: 10px; }
+  .level-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    background: var(--bg3);
+    color: var(--muted);
+  }
+
+  .level-num.active { background: rgba(16,185,129,0.2); color: var(--green); }
+  .level-num.next { background: rgba(14,165,233,0.2); color: var(--blue); }
+
+  .level-info .level-name { font-size: 14px; font-weight: 700; }
+  .level-info .level-daily { font-size: 12px; color: var(--muted); }
+
+  .level-right { text-align: right; }
+  .level-cost { font-size: 13px; font-weight: 700; color: var(--gold); }
+  .level-badge { font-size: 16px; }
+
+  /* GAMES */
+  .games-header {
+    padding: 20px 16px 14px;
+    text-align: center;
+  }
+
+  .game-balance {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 16px;
+  }
+
+  .game-card {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .game-card:active { transform: scale(0.95); }
+
+  .game-icon { font-size: 36px; margin-bottom: 8px; }
+  .game-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .game-mult { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  /* BET INPUT */
+  .bet-screen {
+    padding: 20px 16px;
+  }
+
+  .bet-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--blue2);
+  }
+
+  .bet-input-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .bet-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 60px 14px 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .bet-input:focus { border-color: var(--blue); }
+
+  .bet-currency {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .quick-bets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .quick-bet-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue2);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex: 1;
+  }
+
+  .quick-bet-btn:active { background: rgba(14,165,233,0.15); }
+
+  /* GAME CHOICE BTNS */
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .choice-btn {
+    padding: 18px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .choice-btn:active { transform: scale(0.95); }
+
+  .choice-btn.heads {
+    background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.05));
+    border-color: rgba(245,158,11,0.4);
+    color: var(--gold);
+  }
+
+  .choice-btn.tails {
+    background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(56,189,248,0.05));
+    border-color: rgba(14,165,233,0.4);
+    color: var(--blue2);
+  }
+
+  .choice-btn.higher {
+    background: linear-gradient(135deg, rgba(16,185,129,0.15), transparent);
+    border-color: rgba(16,185,129,0.4);
+    color: var(--green);
+  }
+
+  .choice-btn.lower {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15), transparent);
+    border-color: rgba(239,68,68,0.4);
+    color: var(--red);
+  }
+
+  .dice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .dice-btn {
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .dice-btn:active { background: rgba(14,165,233,0.2); border-color: var(--blue); }
+
+  /* RESULT */
+  .result-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .result-icon { font-size: 48px; margin-bottom: 12px; }
+  .result-label { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .result-label.win { color: var(--green); }
+  .result-label.lose { color: var(--red); }
+  .result-amount { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; }
+  .result-amount.win { color: var(--green); }
+  .result-amount.lose { color: var(--red); }
+  .result-balance { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  /* SLOTS */
+  .slots-reels {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .reel {
+    width: 70px; height: 80px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    transition: transform 0.5s;
+  }
+
+  .reel.spinning {
+    animation: spin 0.1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+  }
+
+  .slots-spin-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    border: none;
+    border-radius: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .slots-spin-btn:active { transform: scale(0.97); }
+  .slots-spin-btn:disabled { opacity: 0.5; }
+
+  /* DEPOSIT */
+  .deposit-card {
+    margin: 0 16px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .deposit-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .deposit-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue2);
+    word-break: break-all;
+    line-height: 1.6;
+  }
+
+  .copy-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(14,165,233,0.1);
+    border: 1px solid rgba(14,165,233,0.3);
+    border-radius: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:active { background: rgba(14,165,233,0.2); }
+
+  .warning-box {
+    margin: 0 16px 12px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--gold);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .check-tx-btn {
+    width: calc(100% - 32px);
+    margin: 0 16px 12px;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none;
+    border-radius: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .check-tx-btn:active { transform: scale(0.97); }
+
+  /* PARTNERS */
+  .ref-link-box {
+    margin: 0 16px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .ref-link-text {
+    font-size: 12px;
+    color: var(--blue2);
+    word-break: break-all;
+    margin-bottom: 10px;
+  }
+
+  .reward-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .reward-row:last-child { border-bottom: none; }
+  .reward-level { color: var(--muted); font-size: 13px; }
+  .reward-amount { font-weight: 700; color: var(--gold); }
+
+  /* PROFILE */
+  .profile-avatar {
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 12px;
+    box-shadow: var(--glow-purple);
+  }
+
+  .profile-username {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .profile-id {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .profile-rows {
+    margin: 0 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row-label { font-size: 13px; color: var(--muted); }
+  .profile-row-value { font-size: 14px; font-weight: 700; }
+
+  /* TASKS */
+  .task-card {
+    margin: 0 16px 8px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .task-card:active { transform: scale(0.98); }
+
+  .task-icon-box {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(14,165,233,0.1);
+    border: 1px solid rgba(14,165,233,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .task-info { flex: 1; }
+  .task-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .task-reward { font-size: 12px; color: var(--green); font-weight: 600; }
+  .task-status { font-size: 18px; }
+
+  /* HISTORY */
+  .history-item {
+    margin: 0 16px 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-desc { font-size: 13px; }
+  .history-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .history-amount { font-size: 14px; font-weight: 700; }
+  .history-amount.plus { color: var(--green); }
+  .history-amount.minus { color: var(--red); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(6,10,20,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: none;
+  }
+
+  .nav-icon { font-size: 22px; transition: all 0.2s; }
+  .nav-label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.3px; transition: all 0.2s; }
+
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+  .nav-item.active .nav-label { color: var(--blue2); }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none;
+    border-radius: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: var(--blue2);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(16,185,129,0.9);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: rgba(239,68,68,0.9); }
+
+  /* SPINNER */
+  .spinner {
+    width: 24px; height: 24px;
+    border: 3px solid rgba(14,165,233,0.3);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: rotate 0.8s linear infinite;
+    margin: 20px auto;
+  }
+
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 16px 16px;
+  }
+
+  /* EMPTY */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-text { font-size: 14px; }
+
+  /* WITHDRAW */
+  .min-info {
+    margin: 0 16px 12px;
+    background: rgba(14,165,233,0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wallet-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .wallet-input:focus { border-color: var(--blue); }
+
+  .promo-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .promo-input:focus { border-color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">PRIME HUB</div>
+  <div class="balance-badge">💎 <span id="headerBalance">0.000000</span> TON</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="hero-name" id="heroName">Гравець</div>
+      <div class="hero-balance" id="heroBalance">0.000000</div>
+      <div class="hero-ton">TON</div>
+      <div class="hero-stats">
+        <div class="stat-pill">⛏ Майнер <span id="heroMinerLvl">—</span></div>
+        <div class="stat-pill">👥 Реф. <span id="heroRefs">0</span></div>
+      </div>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-card blue" onclick="showScreen('miner')">
+        <div class="menu-icon">⛏</div>
+        <div class="menu-title">Майнер</div>
+        <div class="menu-desc" id="homeMinerId">Купи та заробляй TON</div>
+      </div>
+      <div class="menu-card purple" onclick="showScreen('games')">
+        <div class="menu-icon">🎮</div>
+        <div class="menu-title">Ігри</div>
+        <div class="menu-desc">Слоти, монетка, кості</div>
+      </div>
+      <div class="menu-card gold" onclick="showScreen('deposit')">
+        <div class="menu-icon">💰</div>
+        <div class="menu-title">Поповнити</div>
+        <div class="menu-desc">Авто TON депозит</div>
+      </div>
+      <div class="menu-card green" onclick="showScreen('partners')">
+        <div class="menu-icon">🤝</div>
+        <div class="menu-title">Партнери</div>
+        <div class="menu-desc">Реф. посилання</div>
+      </div>
+      <div class="menu-card red" onclick="showScreen('withdraw')">
+        <div class="menu-icon">💸</div>
+        <div class="menu-title">Вивід</div>
+        <div class="menu-desc">Мін. 2 TON</div>
+      </div>
+      <div class="menu-card" onclick="showScreen('promo')">
+        <div class="menu-icon">🎁</div>
+        <div class="menu-title">Промокод</div>
+        <div class="menu-desc">Активуй бонус</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINER SCREEN -->
+  <div class="screen" id="screen-miner">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div class="miner-header">
+      <div id="minerStatusBadge" class="miner-status inactive">
+        <div class="pulse-dot red"></div>
+        Майнер не куплений
+      </div>
+    </div>
+
+    <div class="miner-pending-card" id="pendingCard">
+      <div class="pending-label">Накопичено</div>
+      <div class="pending-amount" id="pendingAmount">0.000000</div>
+      <button class="collect-btn" onclick="collectMining()">💰 Зібрати</button>
+    </div>
+
+    <div class="income-grid" id="incomeGrid" style="display:none">
+      <div class="income-cell">
+        <div class="income-label">За 10 сек</div>
+        <div class="income-value" id="incomePer10">—</div>
+      </div>
+      <div class="income-cell">
+        <div class="income-label">За годину</div>
+        <div class="income-value" id="incomePerH">—</div>
+      </div>
+      <div class="income-cell">
+        <div class="income-label">За добу</div>
+        <div class="income-value" id="incomePerD">—</div>
+      </div>
+      <div class="income-cell">
+        <div class="income-label">За тиждень</div>
+        <div class="income-value" id="incomePerW">—</div>
+      </div>
+    </div>
+
+    <div class="section-title">Рівні Майнера</div>
+    <div id="minerLevels"></div>
+  </div>
+
+  <!-- GAMES SCREEN -->
+  <div class="screen" id="screen-games">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div class="games-header">
+      <div class="game-balance" id="gamesBalance">0.000000 TON</div>
+      <div style="font-size:12px;color:var(--muted)">Ставки: 0.5 — 10 TON</div>
+    </div>
+    <div class="games-grid">
+      <div class="game-card" onclick="openGame('slots')">
+        <div class="game-icon">🎰</div>
+        <div class="game-name">Слоти</div>
+        <div class="game-mult">До x8</div>
+      </div>
+      <div class="game-card" onclick="openGame('coin')">
+        <div class="game-icon">🪙</div>
+        <div class="game-name">Монетка</div>
+        <div class="game-mult">x1.8</div>
+      </div>
+      <div class="game-card" onclick="openGame('dice')">
+        <div class="game-icon">🎲</div>
+        <div class="game-name">Кості</div>
+        <div class="game-mult">x4.5</div>
+      </div>
+      <div class="game-card" onclick="openGame('hilo')">
+        <div class="game-icon">📈</div>
+        <div class="game-name">Більше/Менше</div>
+        <div class="game-mult">x1.8</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME BET SCREEN -->
+  <div class="screen" id="screen-game-bet">
+    <button class="btn-back" id="gameBetBack" onclick="showScreen('games')">← Ігри</button>
+    <div class="bet-screen">
+      <div class="bet-title" id="gameBetTitle">🎮 ГРА</div>
+      <div class="bet-input-wrap">
+        <input class="bet-input" type="number" id="betInput" placeholder="0.5" min="0.5" max="10" step="0.5">
+        <div class="bet-currency">TON</div>
+      </div>
+      <div class="quick-bets">
+        <button class="quick-bet-btn" onclick="setBet(0.5)">0.5</button>
+        <button class="quick-bet-btn" onclick="setBet(1)">1</button>
+        <button class="quick-bet-btn" onclick="setBet(5)">5</button>
+        <button class="quick-bet-btn" onclick="setBet(10)">10</button>
+      </div>
+      <div id="gameChoiceArea"></div>
+    </div>
+  </div>
+
+  <!-- GAME RESULT SCREEN -->
+  <div class="screen" id="screen-game-result">
+    <button class="btn-back" onclick="showScreen('games')">← Ігри</button>
+    <div style="padding:20px 16px">
+      <div class="result-card" id="resultCard">
+        <div class="result-icon" id="resultIcon">🎰</div>
+        <div class="result-label" id="resultLabel">Результат</div>
+        <div class="result-amount" id="resultAmount">0 TON</div>
+        <div class="result-balance" id="resultBalance">Баланс: 0 TON</div>
+      </div>
+      <button class="btn-primary" onclick="replayGame()">🔄 Зіграти ще</button>
+    </div>
+  </div>
+
+  <!-- DEPOSIT SCREEN -->
+  <div class="screen" id="screen-deposit">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div style="padding:8px 0">
+      <div class="section-title">Крок 1 — Відправ TON на гаманець</div>
+      <div class="deposit-card">
+        <div class="deposit-label">TON гаманець</div>
+        <div class="deposit-value" id="depositWallet">UQARrkdFtKlvyUWL-zGJzivemS9g14F_1I92dtGyU1A4FIfr</div>
+        <button class="copy-btn" onclick="copyWallet()">📋 Скопіювати гаманець</button>
+      </div>
+      <div class="section-title">Крок 2 — Вкажи коментар</div>
+      <div class="deposit-card">
+        <div class="deposit-label">Коментар (ОБОВ'ЯЗКОВО!)</div>
+        <div class="deposit-value" id="depositComment">PAY-0</div>
+        <button class="copy-btn" onclick="copyComment()">📋 Скопіювати коментар</button>
+      </div>
+      <div class="warning-box">
+        ⚠️ <div>БЕЗ КОМЕНТАРЯ гроші НЕ зарахуються! Мінімум: 0.5 TON</div>
+      </div>
+      <div style="padding:0 16px">
+        <button class="btn-primary" onclick="checkDeposit()">🔍 Я відправив — перевірити</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTNERS SCREEN -->
+  <div class="screen" id="screen-partners">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div style="padding:8px 0">
+      <div class="section-title">Твоє посилання</div>
+      <div class="ref-link-box">
+        <div class="ref-link-text" id="refLink">https://t.me/MyPrimeHub_bot?start=0</div>
+        <button class="copy-btn" onclick="copyRefLink()">📋 Скопіювати посилання</button>
+      </div>
+
+      <div class="section-title">Нагороди за рефералів</div>
+      <div class="deposit-card">
+        <div class="reward-row">
+          <div class="reward-level">1️⃣ 1-й рівень</div>
+          <div class="reward-amount">+0.1 TON</div>
+        </div>
+        <div class="reward-row">
+          <div class="reward-level">2️⃣ 2-й рівень</div>
+          <div class="reward-amount">+0.05 TON</div>
+        </div>
+        <div class="reward-row">
+          <div class="reward-level">3️⃣ 3-й рівень</div>
+          <div class="reward-amount">+0.02 TON</div>
+        </div>
+      </div>
+
+      <div class="section-title">Бонус до майнінгу</div>
+      <div class="deposit-card">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px">За кожного реферала 1-го рівня:</div>
+        <div style="font-size:16px;font-weight:700;color:var(--green)">+0.0000001 TON / 10 сек</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">= +0.000864 TON / день</div>
+      </div>
+
+      <div class="section-title">Твоя статистика</div>
+      <div class="deposit-card">
+        <div class="reward-row">
+          <div class="reward-level">Рефералів 1 рів.</div>
+          <div class="reward-amount" id="refCount1">0</div>
+        </div>
+        <div class="reward-row">
+          <div class="reward-level">Рефералів 2 рів.</div>
+          <div class="reward-amount" id="refCount2">0</div>
+        </div>
+        <div class="reward-row">
+          <div class="reward-level">Рефералів 3 рів.</div>
+          <div class="reward-amount" id="refCount3">0</div>
+        </div>
+        <div class="reward-row">
+          <div class="reward-level">Реф. заробіток</div>
+          <div class="reward-amount" id="refEarnings">0 TON</div>
+        </div>
+      </div>
+
+      <div style="padding:0 16px 16px">
+        <button class="btn-primary" onclick="shareRef()">📤 Поділитись</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WITHDRAW SCREEN -->
+  <div class="screen" id="screen-withdraw">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div style="padding:8px 16px">
+      <div class="min-info">💡 Мінімум виводу: 2 TON. Баланс: <strong id="withdrawBalance">0</strong> TON</div>
+      <div style="margin-top:12px;margin-bottom:6px;font-size:13px;color:var(--muted)">Сума виводу (TON)</div>
+      <div class="bet-input-wrap">
+        <input class="bet-input" type="number" id="withdrawAmount" placeholder="2.0" min="2">
+        <div class="bet-currency">TON</div>
+      </div>
+      <div style="margin-bottom:6px;font-size:13px;color:var(--muted)">TON гаманець</div>
+      <input class="wallet-input" id="withdrawWallet" type="text" placeholder="UQ...">
+      <button class="btn-primary" onclick="submitWithdraw()">📤 Відправити заявку</button>
+    </div>
+  </div>
+
+  <!-- PROMO SCREEN -->
+  <div class="screen" id="screen-promo">
+    <button class="btn-back" onclick="showScreen('home')">← Назад</button>
+    <div style="padding:20px 16px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🎁</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;margin-bottom:20px;color:var(--purple2)">ПРОМОКОД</div>
+      <input class="promo-input" id="promoInput" type="text" placeholder="ВВЕДИ КОД">
+      <button class="btn-primary" onclick="submitPromo()">✅ Активувати</button>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div class="screen" id="screen-profile">
+    <div style="padding:20px 16px 14px;text-align:center">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-username" id="profileUsername">Гравець</div>
+      <div class="profile-id" id="profileId">ID: —</div>
+    </div>
+    <div class="profile-rows">
+      <div class="profile-row">
+        <div class="profile-row-label">💰 Баланс</div>
+        <div class="profile-row-value" id="profileBalance">0 TON</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">💵 Зароблено</div>
+        <div class="profile-row-value" id="profileEarned">0 TON</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">⛏ Майнер</div>
+        <div class="profile-row-value" id="profileMiner">Не куплений</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">🎮 Ігор зіграно</div>
+        <div class="profile-row-value" id="profileGames">0</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">🏆 Перемог</div>
+        <div class="profile-row-value" id="profileWins">0</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">👥 Рефералів</div>
+        <div class="profile-row-value" id="profileRefs">0</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-row-label">📅 Реєстрація</div>
+        <div class="profile-row-value" id="profileDate">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY SCREEN -->
+  <div class="screen" id="screen-history">
+    <div style="padding:14px 16px 10px;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--muted);letter-spacing:1px">
+      📜 ІСТОРІЯ
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- TASKS SCREEN -->
+  <div class="screen" id="screen-tasks">
+    <div style="padding:14px 16px 10px;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--muted);letter-spacing:1px">
+      📋 ЗАВДАННЯ
+    </div>
+    <div id="tasksList">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">Завдань поки немає</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Головна</div>
+  </button>
+  <button class="nav-item" id="nav-miner" onclick="navTo('miner')">
+    <div class="nav-icon">⛏</div>
+    <div class="nav-label">Майнер</div>
+  </button>
+  <button class="nav-item" id="nav-tasks" onclick="navTo('tasks')">
+    <div class="nav-icon">📋</div>
+    <div class="nav-label">Завдання</div>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="navTo('history')">
+    <div class="nav-icon">📜</div>
+    <div class="nav-label">Історія</div>
+  </button>
+  <button class="nav-item" id="nav-profile" onclick="navTo('profile')">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Профіль</div>
+  </button>
+</div>
+
+<script>
+// ============ INIT TELEGRAM ============
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#060a14');
+  tg.setBackgroundColor('#060a14');
+}
+
+// ============ MINER LEVELS ============
+const MINER_LEVELS = [
+  {level:1, cost:0.5, daily:0.002052},
+  {level:2, cost:1.0, daily:0.006156},
+  {level:3, cost:2.0, daily:0.01436},
+  {level:4, cost:4.0, daily:0.03078},
+  {level:5, cost:8.0, daily:0.0636},
+  {level:6, cost:12.0, daily:0.1129},
+  {level:7, cost:16.0, daily:0.1777},
+  {level:8, cost:20.0, daily:0.2736},
+  {level:9, cost:40.0, daily:0.5678},
+  {level:10, cost:60.0, daily:0.897},
+  {level:11, cost:80.0, daily:1.89},
+  {level:12, cost:100.0, daily:4.24},
+  {level:13, cost:200.0, daily:8.64},
+];
+
+const TON_WALLET = "UQARrkdFtKlvyUWL-zGJzivemS9g14F_1I92dtGyU1A4FIfr";
+const BOT_USERNAME = "MyPrimeHub_bot";
+const MIN_BET = 0.5, MAX_BET = 10.0;
+const MIN_WITHDRAW = 2.0;
+
+// ============ USER STATE ============
+let user = {
+  id: 0,
+  username: 'Гравець',
+  balance: 0,
+  total_earned: 0,
+  total_games: 0,
+  total_wins: 0,
+  total_bets: 0,
+  miner_level: 0,
+  miner_start: null,
+  referrals: {level1: [], level2: [], level3: []},
+  referral_earnings: 0,
+  join_date: new Date().toISOString().split('T')[0],
+  transaction_history: []
+};
+
+// Get user from Telegram
+if (tg?.initDataUnsafe?.user) {
+  const tgUser = tg.initDataUnsafe.user;
+  user.id = tgUser.id || 0;
+  user.username = tgUser.first_name || tgUser.username || 'Гравець';
+}
+
+// ============ STARS ============
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 1;
+    star.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      --d:${Math.random()*4+2}s;--delay:-${Math.random()*4}s;
+    `;
+    container.appendChild(star);
+  }
+}
+createStars();
+
+// ============ UTILS ============
+function fmtTon(n, digits=6) {
+  if (!n || n === 0) return '0.000000';
+  if (Math.abs(n) >= 0.001) return parseFloat(n).toFixed(digits);
+  return parseFloat(n).toFixed(10).replace(/\.?0+$/, '');
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============ SCREENS ============
+let currentScreen = 'home';
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name)?.classList.add('active');
+  currentScreen = name;
+  updateNavActive(name);
+  if (name === 'home') updateHome();
+  if (name === 'miner') updateMiner();
+  if (name === 'profile') updateProfile();
+  if (name === 'history') updateHistory();
+  if (name === 'partners') updatePartners();
+  if (name === 'games') updateGamesBalance();
+  if (name === 'deposit') updateDeposit();
+  if (name === 'withdraw') updateWithdraw();
+}
+
+function navTo(name) {
+  showScreen(name);
+}
+
+function updateNavActive(name) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = {home:'home', miner:'miner', tasks:'tasks', history:'history', profile:'profile'};
+  const navId = navMap[name];
+  if (navId) document.getElementById('nav-' + navId)?.classList.add('active');
+}
+
+// ============ UPDATE UI ============
+function updateHeader() {
+  document.getElementById('headerBalance').textContent = fmtTon(user.balance);
+}
+
+function updateHome() {
+  document.getElementById('heroName').textContent = '👋 ' + user.username;
+  document.getElementById('heroBalance').textContent = fmtTon(user.balance);
+  document.getElementById('heroMinerLvl').textContent = user.miner_level > 0 ? 'Lvl ' + user.miner_level : '—';
+  document.getElementById('heroRefs').textContent = user.referrals.level1.length;
+  if (user.miner_level > 0) {
+    const ml = MINER_LEVELS[user.miner_level - 1];
+    document.getElementById('homeMinerId').textContent = 'Lvl ' + user.miner_level + ' | +' + fmtTon(ml.daily) + '/день';
+  }
+  updateHeader();
+}
+
+function updateMiner() {
+  const lvl = user.miner_level;
+  const statusBadge = document.getElementById('minerStatusBadge');
+  const dot = statusBadge.querySelector('.pulse-dot');
+  const incomeGrid = document.getElementById('incomeGrid');
+
+  if (lvl > 0) {
+    statusBadge.className = 'miner-status';
+    statusBadge.innerHTML = '<div class="pulse-dot"></div> 🟢 Майнер ' + lvl + ' активний!';
+    incomeGrid.style.display = 'grid';
+
+    const ml = MINER_LEVELS[lvl - 1];
+    const pending = calcPending();
+    document.getElementById('pendingAmount').textContent = fmtTon(pending) + ' TON';
+    document.getElementById('incomePer10').textContent = fmtTon(ml.daily / 8640) + ' TON';
+    document.getElementById('incomePerH').textContent = fmtTon(ml.daily / 24) + ' TON';
+    document.getElementById('incomePerD').textContent = fmtTon(ml.daily) + ' TON';
+    document.getElementById('incomePerW').textContent = fmtTon(ml.daily * 7) + ' TON';
+  } else {
+    statusBadge.className = 'miner-status inactive';
+    statusBadge.innerHTML = '<div class="pulse-dot red"></div> 🔴 Майнер не куплений';
+    incomeGrid.style.display = 'none';
+    document.getElementById('pendingAmount').textContent = '0.000000 TON';
+  }
+
+  buildMinerLevels();
+}
+
+function calcPending() {
+  if (!user.miner_start || user.miner_level === 0) return 0;
+  const ml = MINER_LEVELS[user.miner_level - 1];
+  const elapsed = Math.min((Date.now() - new Date(user.miner_start).getTime()) / 1000, 72 * 3600);
+  return ml.daily / 86400 * elapsed;
+}
+
+function buildMinerLevels() {
+  const container = document.getElementById('minerLevels');
+  container.innerHTML = '';
+  const lvl = user.miner_level;
+  MINER_LEVELS.forEach(ml => {
+    const isActive = ml.level === lvl;
+    const isNext = ml.level === lvl + 1;
+    const isPast = ml.level < lvl;
+    const card = document.createElement('div');
+    card.className = 'level-card' + (isActive ? ' active-level' : isNext ? ' next-level' : '');
+    card.innerHTML = `
+      <div class="level-left">
+        <div class="level-num ${isActive?'active':isNext?'next':''}">${ml.level}</div>
+        <div class="level-info">
+          <div class="level-name" style="color:${isActive?'var(--green)':isNext?'var(--blue2)':'var(--text)'}">Майнер ${ml.level}</div>
+          <div class="level-daily">${fmtTon(ml.daily)} TON/день</div>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-cost">${ml.cost} TON</div>
+        <div class="level-badge">${isActive?'✅':isPast?'🔒':isNext?'⬆️':'⭐'}</div>
+      </div>
+    `;
+    if (!isPast && !isActive && (isNext || ml.level > lvl + 1)) {
+      card.onclick = () => buyMiner(ml.level);
+    }
+    container.appendChild(card);
+  });
+}
+
+function collectMining() {
+  const pending = calcPending();
+  if (pending < 0.0000001) { showToast('Ще нічого не накопичено', true); return; }
+  user.balance = Math.round((user.balance + pending) * 1e10) / 1e10;
+  user.total_earned = Math.round((user.total_earned + pending) * 1e10) / 1e10;
+  user.miner_start = new Date().toISOString();
+  addTransaction(pending, '⛏ Майнінг');
+  updateMiner();
+  updateHeader();
+  showToast('✅ Зібрано ' + fmtTon(pending) + ' TON!');
+  tg?.HapticFeedback?.notificationOccurred('success');
+}
+
+function buyMiner(level) {
+  if (level !== user.miner_level + 1) {
+    showToast('❌ Купуйте по порядку!', true);
+    return;
+  }
+  const ml = MINER_LEVELS[level - 1];
+  if (user.balance < ml.cost) {
+    showToast('❌ Недостатньо TON! Потрібно ' + ml.cost + ' TON', true);
+    return;
+  }
+  // Auto collect pending
+  const pending = calcPending();
+  if (pending > 0) {
+    user.balance += pending;
+    user.total_earned += pending;
+    addTransaction(pending, '⛏ Авто-збір');
+  }
+  user.balance = Math.round((user.balance - ml.cost) * 1e10) / 1e10;
+  user.miner_level = level;
+  user.miner_start = new Date().toISOString();
+  addTransaction(-ml.cost, '⛏ Майнер ' + level + ' куплений');
+  updateMiner();
+  updateHeader();
+  updateHome();
+  showToast('✅ Майнер ' + level + ' куплений! +' + fmtTon(ml.daily) + ' TON/день');
+  tg?.HapticFeedback?.notificationOccurred('success');
+}
+
+// ============ GAMES ============
+let currentGame = null;
+let currentBet = 0;
+let hiloFirstNum = 0;
+
+function updateGamesBalance() {
+  document.getElementById('gamesBalance').textContent = fmtTon(user.balance) + ' TON';
+}
+
+function openGame(game) {
+  if (user.balance < MIN_BET) {
+    showToast('❌ Недостатньо TON! Поповни баланс', true);
+    return;
+  }
+  currentGame = game;
+  const names = {slots:'🎰 Слоти', coin:'🪙 Орел/Решка', dice:'🎲 Кості', hilo:'📈 Більше/Менше'};
+  document.getElementById('gameBetTitle').textContent = names[game];
+  document.getElementById('betInput').value = '';
+  document.getElementById('gameChoiceArea').innerHTML = '';
+
+  // Show choice area based on game
+  if (game === 'slots') {
+    document.getElementById('gameChoiceArea').innerHTML = `
+      <div class="slots-reels">
+        <div class="reel" id="reel0">🎰</div>
+        <div class="reel" id="reel1">🎰</div>
+        <div class="reel" id="reel2">🎰</div>
+      </div>
+      <button class="slots-spin-btn" onclick="playSlotsWithBet()">🎰 КРУТИТИ</button>
+    `;
+  } else if (game === 'coin') {
+    document.getElementById('gameChoiceArea').innerHTML = `
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:12px">Твій вибір</div>
+      <div class="choice-grid">
+        <button class="choice-btn heads" onclick="playCoin('heads')">🦅 Орел</button>
+        <button class="choice-btn tails" onclick="playCoin('tails')">🪙 Решка</button>
+      </div>
+    `;
+  } else if (game === 'dice') {
+    const nums = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
+    document.getElementById('gameChoiceArea').innerHTML = `
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:12px">Вгадай число</div>
+      <div class="dice-grid">
+        ${nums.map((e,i)=>`<button class="dice-btn" onclick="playDice(${i+1})">${e}</button>`).join('')}
+      </div>
+    `;
+  } else if (game === 'hilo') {
+    hiloFirstNum = Math.floor(Math.random() * 10) + 1;
+    document.getElementById('gameChoiceArea').innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:13px;color:var(--muted)">Перше число</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;color:var(--blue2)">${hiloFirstNum}</div>
+      </div>
+      <div class="choice-grid">
+        <button class="choice-btn higher" onclick="playHilo('higher')">📈 Більше</button>
+        <button class="choice-btn lower" onclick="playHilo('lower')">📉 Менше</button>
+      </div>
+    `;
+  }
+  showScreen('game-bet');
+}
+
+function setBet(amount) {
+  document.getElementById('betInput').value = Math.min(amount, user.balance);
+}
+
+function getBet() {
+  const v = parseFloat(document.getElementById('betInput').value);
+  if (isNaN(v) || v < MIN_BET) { showToast('Мінімум ' + MIN_BET + ' TON', true); return null; }
+  if (v > MAX_BET) { showToast('Максимум ' + MAX_BET + ' TON', true); return null; }
+  if (v > user.balance) { showToast('Недостатньо TON', true); return null; }
+  return v;
+}
+
+function showResult(icon, win, winAmount, bet, desc) {
+  const card = document.getElementById('resultCard');
+  document.getElementById('resultIcon').textContent = icon;
+  if (win) {
+    document.getElementById('resultLabel').className = 'result-label win';
+    document.getElementById('resultLabel').textContent = '🏆 ПЕРЕМОГА!';
+    document.getElementById('resultAmount').className = 'result-amount win';
+    document.getElementById('resultAmount').textContent = '+' + fmtTon(winAmount) + ' TON';
+    card.style.borderColor = 'rgba(16,185,129,0.4)';
+    tg?.HapticFeedback?.notificationOccurred('success');
+  } else {
+    document.getElementById('resultLabel').className = 'result-label lose';
+    document.getElementById('resultLabel').textContent = '😔 Програш';
+    document.getElementById('resultAmount').className = 'result-amount lose';
+    document.getElementById('resultAmount').textContent = '-' + fmtTon(bet) + ' TON';
+    card.style.borderColor = 'rgba(239,68,68,0.3)';
+    tg?.HapticFeedback?.notificationOccurred('error');
+  }
+  document.getElementById('resultBalance').textContent = 'Баланс: ' + fmtTon(user.balance) + ' TON';
+  showScreen('game-result');
+}
+
+function replayGame() {
+  if (currentGame) openGame(currentGame);
+}
+
+function playSlotsWithBet() {
+  const bet = getBet();
+  if (!bet) return;
+  currentBet = bet;
+  const symbols = ['🍋','🍊','🍇','🍒','⭐','💎','7️⃣'];
+  const weights = [35,30,20,10,3,1.5,0.5];
+
+  // Spin animation
+  const reels = [0,1,2].map(i => document.getElementById('reel'+i));
+  reels.forEach(r => r.classList.add('spinning'));
+  document.querySelector('.slots-spin-btn').disabled = true;
+
+  setTimeout(() => {
+    const picked = [0,1,2].map(() => {
+      let r = Math.random() * 100, cumulative = 0;
+      for (let j=0; j<symbols.length; j++) {
+        cumulative += weights[j];
+        if (r < cumulative) return symbols[j];
+      }
+      return symbols[0];
+    });
+
+    reels.forEach((r, i) => { r.classList.remove('spinning'); r.textContent = picked[i]; });
+
+    let win = 0, winText = '';
+    if (picked[0]===picked[1] && picked[1]===picked[2]) {
+      if (picked[0]==='7️⃣') { win=bet*8; winText='ДЖЕКПОТ! x8'; }
+      else if (picked[0]==='💎') { win=bet*6; winText='СУПЕР! x6'; }
+      else if (picked[0]==='⭐') { win=bet*4; winText='ВІДМІННО! x4'; }
+      else { win=bet*2.5; winText='ПЕРЕМОГА! x2.5'; }
+    } else if ((picked[0]===picked[1]||picked[1]===picked[2]||picked[0]===picked[2]) && Math.random()<0.33) {
+      win=bet*1.3; winText='Пара! x1.3';
+    }
+    win = Math.round(win * 1e8) / 1e8;
+
+    user.balance = Math.round((user.balance - bet + win) * 1e10) / 1e10;
+    user.total_games++;
+    user.total_bets += bet;
+    if (win > 0) { user.total_wins++; addTransaction(win-bet, '🎰 Слоти ' + winText); }
+    else { addTransaction(-bet, '🎰 Слоти'); }
+
+    const icon = '[ ' + picked.join(' | ') + ' ]';
+    showResult(win>0?'🏆':'😔', win>0, win, bet, winText);
+    document.getElementById('resultIcon').textContent = '';
+    document.getElementById('resultCard').insertAdjacentHTML('afterbegin',
+      `<div style="display:flex;gap:8px;justify-content:center;font-size:36px;margin-bottom:12px">${picked[0]} ${picked[1]} ${picked[2]}</div>`
+    );
+    updateHeader();
+  }, 800);
+}
+
+function playCoin(choice) {
+  const bet = getBet();
+  if (!bet) return;
+  const result = Math.random() < 0.48 ? 'heads' : 'tails';
+  const won = result === choice;
+  const win = won ? Math.round(bet*1.8*1e8)/1e8 : 0;
+  user.balance = Math.round((user.balance - bet + win) * 1e10) / 1e10;
+  user.total_games++;
+  user.total_bets += bet;
+  if (won) { user.total_wins++; addTransaction(win-bet, '🪙 Перемога'); }
+  else { addTransaction(-bet, '🪙 Монетка'); }
+  const icons = {heads:'🦅', tails:'🪙'};
+  showResult(icons[result], won, win, bet);
+  updateHeader();
+}
+
+function playDice(choice) {
+  const bet = getBet();
+  if (!bet) return;
+  const result = Math.floor(Math.random()*6)+1;
+  const won = result === choice;
+  const win = won ? Math.round(bet*4.5*1e8)/1e8 : 0;
+  user.balance = Math.round((user.balance - bet + win) * 1e10) / 1e10;
+  user.total_games++;
+  user.total_bets += bet;
+  if (won) { user.total_wins++; addTransaction(win-bet, '🎲 Перемога'); }
+  else { addTransaction(-bet, '🎲 Кості'); }
+  const emojis = ['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
+  showResult(emojis[result], won, win, bet);
+  updateHeader();
+}
+
+function playHilo(choice) {
+  const bet = getBet();
+  if (!bet) return;
+  const second = Math.floor(Math.random()*10)+1;
+  const won = (choice==='higher' && second>hiloFirstNum) || (choice==='lower' && second<hiloFirstNum);
+  const win = won ? Math.round(bet*1.8*1e8)/1e8 : 0;
+  user.balance = Math.round((user.balance - bet + win) * 1e10) / 1e10;
+  user.total_games++;
+  user.total_bets += bet;
+  if (won) { user.total_wins++; addTransaction(win-bet, '📈 Перемога'); }
+  else { addTransaction(-bet, '📈 HiLo'); }
+  showResult(won?'🏆':'😔', won, win, bet);
+  document.getElementById('resultCard').insertAdjacentHTML('afterbegin',
+    `<div style="font-size:14px;color:var(--muted);margin-bottom:12px">${hiloFirstNum} → <strong style="color:var(--blue2)">${second}</strong></div>`
+  );
+  updateHeader();
+}
+
+// ============ DEPOSIT ============
+function updateDeposit() {
+  document.getElementById('depositWallet').textContent = TON_WALLET;
+  document.getElementById('depositComment').textContent = 'PAY-' + user.id;
+}
+
+function copyWallet() {
+  navigator.clipboard?.writeText(TON_WALLET).then(() => showToast('📋 Гаманець скопійовано!'));
+  tg?.HapticFeedback?.selectionChanged();
+}
+
+function copyComment() {
+  const comment = 'PAY-' + user.id;
+  navigator.clipboard?.writeText(comment).then(() => showToast('📋 Коментар скопійовано!'));
+  tg?.HapticFeedback?.selectionChanged();
+}
+
+function checkDeposit() {
+  showToast('🔍 Перевірка... (зачекай 30 сек після відправки)');
+}
+
+// ============ PARTNERS ============
+function updatePartners() {
+  const link = 'https://t.me/' + BOT_USERNAME + '?start=' + user.id;
+  document.getElementById('refLink').textContent = link;
+  document.getElementById('refCount1').textContent = user.referrals.level1.length;
+  document.getElementById('refCount2').textContent = user.referrals.level2.length;
+  document.getElementById('refCount3').textContent = user.referrals.level3.length;
+  document.getElementById('refEarnings').textContent = fmtTon(user.referral_earnings) + ' TON';
+}
+
+function copyRefLink() {
+  const link = 'https://t.me/' + BOT_USERNAME + '?start=' + user.id;
+  navigator.clipboard?.writeText(link).then(() => showToast('📋 Посилання скопійовано!'));
+  tg?.HapticFeedback?.selectionChanged();
+}
+
+function shareRef() {
+  const link = 'https://t.me/' + BOT_USERNAME + '?start=' + user.id;
+  const text = '🔥 Заробляй TON разом зі мною! Prime Hub — майнер, ігри, рефералка!';
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text));
+  } else {
+    copyRefLink();
+  }
+}
+
+// ============ WITHDRAW ============
+function updateWithdraw() {
+  document.getElementById('withdrawBalance').textContent = fmtTon(user.balance);
+}
+
+function submitWithdraw() {
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const wallet = document.getElementById('withdrawWallet').value.trim();
+  if (!amount || amount < MIN_WITHDRAW) { showToast('❌ Мінімум ' + MIN_WITHDRAW + ' TON', true); return; }
+  if (amount > user.balance) { showToast('❌ Недостатньо TON', true); return; }
+  if (!wallet || wallet.length < 10) { showToast('❌ Невірний гаманець', true); return; }
+  showToast('✅ Заявку відправлено! Очікуй підтвердження.');
+  document.getElementById('withdrawAmount').value = '';
+  document.getElementById('withdrawWallet').value = '';
+  tg?.HapticFeedback?.notificationOccurred('success');
+}
+
+// ============ PROMO ============
+function submitPromo() {
+  const code = document.getElementById('promoInput').value.trim().toUpperCase();
+  if (!code) { showToast('Введи промокод', true); return; }
+  // Demo: accept PRIMEHUB for 0.1 TON
+  if (code === 'PRIMEHUB') {
+    user.balance += 0.1;
+    user.total_earned += 0.1;
+    addTransaction(0.1, '🎁 ' + code);
+    updateHeader();
+    document.getElementById('promoInput').value = '';
+    showToast('✅ Промокод активовано! +0.1 TON');
+    tg?.HapticFeedback?.notificationOccurred('success');
+  } else {
+    showToast('❌ Промокод не знайдено', true);
+    tg?.HapticFeedback?.notificationOccurred('error');
+  }
+}
+
+// ============ PROFILE ============
+function updateProfile() {
+  document.getElementById('profileUsername').textContent = user.username;
+  document.getElementById('profileId').textContent = 'ID: ' + (user.id || '—');
+  document.getElementById('profileBalance').textContent = fmtTon(user.balance) + ' TON';
+  document.getElementById('profileEarned').textContent = fmtTon(user.total_earned) + ' TON';
+  document.getElementById('profileMiner').textContent = user.miner_level > 0 ? 'Рівень ' + user.miner_level : 'Не куплений';
+  document.getElementById('profileGames').textContent = user.total_games;
+  document.getElementById('profileWins').textContent = user.total_wins + (user.total_games>0 ? ' (' + Math.round(user.total_wins/user.total_games*100) + '%)' : '');
+  document.getElementById('profileRefs').textContent = user.referrals.level1.length + ' / ' + user.referrals.level2.length + ' / ' + user.referrals.level3.length;
+  document.getElementById('profileDate').textContent = user.join_date;
+}
+
+// ============ HISTORY ============
+function addTransaction(amount, desc) {
+  user.transaction_history.unshift({
+    amount, desc,
+    date: new Date().toLocaleString('uk-UA', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+  });
+  if (user.transaction_history.length > 20) user.transaction_history.pop();
+}
+
+function updateHistory() {
+  const list = document.getElementById('historyList');
+  if (!user.transaction_history.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📜</div><div class="empty-text">Історія порожня</div></div>';
+    return;
+  }
+  list.innerHTML = user.transaction_history.map(tr => `
+    <div class="history-item">
+      <div>
+        <div class="history-desc">${tr.desc}</div>
+        <div class="history-date">${tr.date}</div>
+      </div>
+      <div class="history-amount ${tr.amount >= 0 ? 'plus' : 'minus'}">
+        ${tr.amount >= 0 ? '+' : ''}${fmtTon(tr.amount)} TON
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ MINER AUTO TICK ============
+setInterval(() => {
+  if (currentScreen === 'miner' && user.miner_level > 0) {
+    const pending = calcPending();
+    document.getElementById('pendingAmount').textContent = fmtTon(pending) + ' TON';
+  }
+  if (currentScreen === 'home' && user.miner_level > 0) {
+    const ml = MINER_LEVELS[user.miner_level - 1];
+    document.getElementById('homeMinerId').textContent = 'Lvl ' + user.miner_level + ' | +' + fmtTon(ml.daily) + '/день';
+  }
+}, 5000);
+
+// ============ INIT ============
+updateHome();
+</script>
+</body>
+</html>
